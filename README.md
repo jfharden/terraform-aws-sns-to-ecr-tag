@@ -25,18 +25,18 @@ Example SNS message body:
   "ecr_tag_to_update": "1.2",
   "ecr_tag_to_add": "deployed_on_20200511T2321Z"
 }
+```
 
 ## How this works
 
-The SNS topic will trigger a lambda function, that lambda function adds a tag to the image (without having to pull or
+The SNS topic will trigger a lambda function, that lambda function adds a tag to the image (without having to pull or  
 push the whole image (see the guide https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-retag.html).
 
 This does require the docker images to made with Docker image Manifest V2 Schema 2.
 
-If the lambda fails it will deliver the failures to the dead letter queue. I would also like to send the failed sns
-messages to the DLQ but terraform support is lacking for that at the moment (see
+If the lambda fails it will deliver the failures to the dead letter queue. I would also like to send the failed sns  
+messages to the DLQ but terraform support is lacking for that at the moment (see  
 https://github.com/terraform-providers/terraform-provider-aws/issues/10931 )
-```
 
 ## Inputs
 

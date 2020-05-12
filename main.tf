@@ -26,6 +26,7 @@
 *   "ecr_tag_to_update": "1.2",
 *   "ecr_tag_to_add": "deployed_on_20200511T2321Z"
 * }
+* ```
 *
 * ## How this works
 *
