@@ -33,10 +33,9 @@ push the whole image (see the guide https://docs.aws.amazon.com/AmazonECR/latest
 
 This does require the docker images to made with Docker image Manifest V2 Schema 2.
 
-If this ever fails SNS will keep retrying for 24 hours, after which time it will deliver the message body to an SQS
-dead letter queue. If you wish to monitor this you should setup some alarms on the dead letter queue, and maybe also
-on the number of failed delivery attempts on the SNS topic
-(see https://docs.aws.amazon.com/sns/latest/dg/sns-monitoring-using-cloudwatch.html).
+If the lambda fails it will deliver the failures to the dead letter queue. I would also like to send the failed sns
+messages to the DLQ but terraform support is lacking for that at the moment (see
+https://github.com/terraform-providers/terraform-provider-aws/issues/10931 )
 ```
 
 ## Inputs
@@ -45,7 +44,7 @@ on the number of failed delivery attempts on the SNS topic
 |------|-------------|------|---------|:--------:|
 | environment | Deployment environment (e.g. prod, test, dev) | `string` | n/a | yes |
 | name | Name to give to all created resources | `string` | n/a | yes |
-| repos\_to\_grant\_permission | A list of ECR repo names, if set permission will be granted for the lambda created to apply tags to this repo, and read the image manifests for the listed repos. If unset permission will be granted to all repos in the account | `list` | `[]` | no |
+| repos\_to\_grant\_permission | A list of ECR repo arns, if set permission will be granted for the lambda created to apply tags to this repo, and read the image manifests for the listed repos. If unset permission will be granted to all repos in the account | `list` | `[]` | no |
 | tags | Additional tags to add to all taggable resources created | `map` | `{}` | no |
 
 ## Outputs

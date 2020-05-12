@@ -34,16 +34,14 @@
 *
 * This does require the docker images to made with Docker image Manifest V2 Schema 2.
 *
-* If this ever fails SNS will keep retrying for 24 hours, after which time it will deliver the message body to an SQS
-* dead letter queue. If you wish to monitor this you should setup some alarms on the dead letter queue, and maybe also
-* on the number of failed delivery attempts on the SNS topic
-* (see https://docs.aws.amazon.com/sns/latest/dg/sns-monitoring-using-cloudwatch.html).
-*
+* If the lambda fails it will deliver the failures to the dead letter queue. I would also like to send the failed sns
+* messages to the DLQ but terraform support is lacking for that at the moment (see 
+* https://github.com/terraform-providers/terraform-provider-aws/issues/10931 )
 */
 
 locals {
   tags = merge(
-    { "Environment": var.environment },
+    { "Environment" : var.environment },
     var.tags,
   )
 }
@@ -58,4 +56,50 @@ resource "aws_sns_topic" "this" {
   name = var.name
 
   tags = local.tags
+}
+
+module "lambda" {
+  source = "git::https://github.com/claranet/terraform-aws-lambda.git//?ref=v1.2.0"
+
+  function_name = var.name
+  description   = "Add tag to an ECR image"
+  handler       = "lambdas.tag_ecr_image.tag_ecr_image"
+  runtime       = "python3.8"
+
+  source_path = "${path.module}/src"
+
+  policy = {
+    json = data.aws_iam_policy_document.lambda.json
+  }
+
+  dead_letter_config = {
+    target_arn = aws_sqs_queue.dead_letter.arn
+  }
+
+  tags = local.tags
+}
+
+data "aws_iam_policy_document" "lambda" {
+  statement {
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:PutImage",
+    ]
+
+    resources = length(var.repos_to_grant_permission) == 0 ? ["*"] : var.repos_to_grant_permission
+  }
+}
+
+resource "aws_lambda_permission" "with_sns" {
+  statement_id  = "AllowExecutionFromSNS"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.this.arn
+}
+
+resource "aws_sns_topic_subscription" "lambda" {
+  topic_arn = aws_sns_topic.this.arn
+  protocol  = "lambda"
+  endpoint  = module.lambda.function_arn
 }

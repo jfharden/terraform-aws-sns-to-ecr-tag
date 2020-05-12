@@ -1,6 +1,6 @@
 variable "repos_to_grant_permission" {
   type        = list
-  description = "A list of ECR repo names, if set permission will be granted for the lambda created to apply tags to this repo, and read the image manifests for the listed repos. If unset permission will be granted to all repos in the account"
+  description = "A list of ECR repo arns, if set permission will be granted for the lambda created to apply tags to this repo, and read the image manifests for the listed repos. If unset permission will be granted to all repos in the account"
   default     = []
 }
 
