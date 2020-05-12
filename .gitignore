@@ -133,6 +133,7 @@ dmypy.json
 .terragrunt-cache
 *.tfstate
 *.tfstate.backup
+.terratest-working-dir
 
 # vim
 .swp

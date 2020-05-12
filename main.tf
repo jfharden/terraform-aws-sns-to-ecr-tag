@@ -7,7 +7,7 @@
 * * /: The terraform module itself in the root of the project
 * * examples: Fully functional terraform examples using this module
 * * src: Python code for the lambda function
-* * tests: Tests for the module written in go using terratest
+* * test: Tests for the module written in go using terratest and deploying the examples from the examples directory
 *
 * ## SNS Topic Body
 *

@@ -3,3 +3,4 @@ terraform 0.12.24
 tflint 0.15.5
 python 3.8.2
 golang 1.14.2
+shellcheck 0.7.1
