@@ -40,3 +40,22 @@
 * (see https://docs.aws.amazon.com/sns/latest/dg/sns-monitoring-using-cloudwatch.html).
 *
 */
+
+locals {
+  tags = merge(
+    { "Environment": var.environment },
+    var.tags,
+  )
+}
+
+resource "aws_sqs_queue" "dead_letter" {
+  name = "${var.name}-dead-letter"
+
+  tags = local.tags
+}
+
+resource "aws_sns_topic" "this" {
+  name = var.name
+
+  tags = local.tags
+}
