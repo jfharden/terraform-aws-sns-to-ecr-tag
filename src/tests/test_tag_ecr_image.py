@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from lambdas.tag_ecr_repo import tagEcrRepo
+from lambdas.tag_ecr_image import tag_ecr_image
 import botocore.session
 from botocore.stub import Stubber
 
@@ -55,7 +55,7 @@ class TestTagECRRepo(unittest.TestCase):
         with patch("boto3.client") as mockClient:
             mockClient.return_value = ecrClient
 
-            putImageResponse = tagEcrRepo(self.__sns_event(), self.__lambda_context())
+            putImageResponse = tag_ecr_image(self.__sns_event(), self.__lambda_context())
 
         self.assertEqual(putImageResponse, TestTagECRRepo.PUT_IMAGE_SUCCESSFUL_RESPONSE)
 
@@ -71,7 +71,7 @@ class TestTagECRRepo(unittest.TestCase):
             mockClient.return_value = ecrClient
 
             with self.assertRaisesRegex(Exception, "^Failures trying to get image manifest with tag latest.*"):
-                tagEcrRepo(self.__sns_event(), self.__lambda_context())
+                tag_ecr_image(self.__sns_event(), self.__lambda_context())
 
     def test_batch_get_failure_propogated(self):
         ecrClient = botocore.session.get_session().create_client("ecr")
@@ -86,7 +86,7 @@ class TestTagECRRepo(unittest.TestCase):
 
             # with self.assertRaisesRegex(Exception, "^Failures trying to get image manifest with tag latest.*"):
             with self.assertRaises(Exception) as cm:
-                tagEcrRepo(self.__sns_event(), self.__lambda_context())
+                tag_ecr_image(self.__sns_event(), self.__lambda_context())
 
             self.assertEqual(cm.exception.response["Error"]["Code"], "RepositoryNotFoundException")
 
@@ -106,7 +106,7 @@ class TestTagECRRepo(unittest.TestCase):
 
             # with self.assertRaisesRegex(Exception, "^Failures trying to get image manifest with tag latest.*"):
             with self.assertRaises(Exception) as cm:
-                tagEcrRepo(self.__sns_event(), self.__lambda_context())
+                tag_ecr_image(self.__sns_event(), self.__lambda_context())
 
             self.assertEqual(cm.exception.response["Error"]["Code"], "LimitExceededException")
 

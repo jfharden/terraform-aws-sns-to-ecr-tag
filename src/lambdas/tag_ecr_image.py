@@ -2,7 +2,7 @@ import boto3
 import json
 
 
-def tagEcrRepo(event, context):
+def tag_ecr_image(event, context):
     ecrClient = boto3.client('ecr')
 
     messageJson = event["Records"][0]["Sns"]["Message"]
@@ -12,7 +12,7 @@ def tagEcrRepo(event, context):
     tagToUpdate = message["ecr_tag_to_update"]
     tagToAdd = message["ecr_tag_to_add"]
 
-    manifest = __getImageManifest(ecrClient, repositoryName, tagToUpdate)
+    manifest = __get_image_manifest(ecrClient, repositoryName, tagToUpdate)
 
     response = ecrClient.put_image(
         repositoryName=repositoryName,
@@ -23,7 +23,7 @@ def tagEcrRepo(event, context):
     return response
 
 
-def __getImageManifest(ecrClient, repositoryName, tagToUpdate):
+def __get_image_manifest(ecrClient, repositoryName, tagToUpdate):
     response = ecrClient.batch_get_image(
         repositoryName=repositoryName,
         imageIds=[
@@ -37,12 +37,12 @@ def __getImageManifest(ecrClient, repositoryName, tagToUpdate):
         ]
     )
 
-    __validateBatchGetImageResponse(response, tagToUpdate)
+    __validate_batch_get_image_response(response, tagToUpdate)
 
     return response["images"][0]["imageManifest"]
 
 
-def __validateBatchGetImageResponse(response, tagToUpdate):
+def __validate_batch_get_image_response(response, tagToUpdate):
     if len(response["failures"]) > 0:
         exceptionMessage = "Failures trying to get image manifest with tag {tag}. {failures}".format(
             tag=tagToUpdate,
